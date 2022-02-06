@@ -153,6 +153,21 @@ elseif(WIN32)
 
 	set(CMAKE_INSTALL_PREFIX "D:/tools/${PROJECT_NAME}")
 
+elseif(ANDROID)
+
+	FetchContent_Declare(
+	QtAndroidCMake
+	GIT_REPOSITORY https://github.com/LaurentGomila/qt-android-cmake
+	GIT_TAG        master
+	)
+	FetchContent_MakeAvailable(QtAndroidCMake)
+
+	add_library(HLMV SHARED ${FILE_SRC_PLATFORM} ${FILE_RES} ${FILE_UI} ${FILE_SRC} ${GEN_MOC} ${GEN_UIC} ${GEN_RCC})
+	target_link_libraries(HLMV ${OPENGL_LIBRARY} Qt5::Core Qt5::Widgets Qt5::OpenGL)
+	add_qt_android_apk(HLMV_apk HLMV
+	PACKAGE_NAME "ru.google61.hlmv"
+	DEPENDS ${OPENGL_LIBRARY} Qt5::Core Qt5::Widgets Qt5::OpenGL
+	)
 else()
 	add_executable(HLMV ${FILE_SRC_PLATFORM} ${FILE_RES} ${FILE_UI} ${FILE_SRC} ${GEN_MOC} ${GEN_UIC} ${GEN_RCC})
 	target_link_libraries(HLMV ${OPENGL_LIBRARY} Qt5::Core Qt5::Widgets Qt5::OpenGL)
