@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install packages
-      run: sudo apt-get install libgl1-mesa-dev qt5-default qtdeclarative5-dev
+      run: sudo apt-get install libgl1-mesa-dev qt5-default
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -32,6 +32,7 @@ jobs:
       env: 
         ANDROID_SDK: $ANDROID_SDK_ROOT
         ANDROID_NDK: $ANDROID_NDK_HOME
+        Qt5_DIR: /usr/lib/x86_64-linux-gnu/cmake/Qt5
 
     - name: Build
       # Build your program with the given configuration
