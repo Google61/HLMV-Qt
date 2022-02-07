@@ -22,8 +22,22 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install packages
-      run: sudo apt-get install libgl1-mesa-dev qt5-default
+    - name: Build Qt5 for Android
+      run: |
+            qtvermajor=5
+            qtverminor=15
+            qtverpatch=.2
+            qtver=$qtvermajor.$qtverminor$qtverpatch
+            qtname=qt-everywhere-src-$qtver
+            echo "Downloading $qtname.tar.xz..." && wget -q https://download.qt.io/official_releases/qt/$qtvermajor.$qtverminor/$qtver/single/$qtname.tar.xz
+            tar xf $qtname.tar.xz && cd $qtname
+            mkdir $GITHUB_WORKSPACE/qt5
+            mkdir build-qt && cd build-qt
+            ../configure -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5 -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -no-warnings-are-errors -opengl desktop
+            make -j$(nproc)
+            sudo make install
+            find $GITHUB_WORKSPACE/qt5 -name "Qt5Core*"
+            exit 1
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
