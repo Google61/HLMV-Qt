@@ -44,7 +44,7 @@ jobs:
             echo "Downloading $qtname.tar.xz..." && wget -q https://download.qt.io/official_releases/qt/$qtvermajor.$qtverminor/$qtver/single/$qtname.tar.xz
             tar xf $qtname.tar.xz && cd $qtname
             mkdir $GITHUB_WORKSPACE/qt5
-            cp -rf "$GITHUB_WORKSPACE/qt5patch/*" "$GITHUB_WORKSPACE/qt5/"
+            cp -rf $GITHUB_WORKSPACE/qt5patch/* $GITHUB_WORKSPACE/qt5/
             mkdir build-qt && cd build-qt
             gl4es_BINARY_DIR=$GITHUB_WORKSPACE/gl4es/libs/arm64-v8a ../configure -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5 -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -no-warnings-are-errors -opengl desktop
             make -j$(nproc)
