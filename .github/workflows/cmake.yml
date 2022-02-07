@@ -22,6 +22,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Get gl4es
+      uses: actions/checkout@v2
+      with:
+        repository: 'ptitSeb/gl4es'
+        path: 'gl4es'
+
+    - name: Build gl4es
+      run: |
+        cp -rf Android_gl4es.mk gl4es/Android.mk
+        cd gl4es
+        $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk
+
     - name: Build Qt5 for Android
       run: |
             qtvermajor=5
@@ -32,8 +44,9 @@ jobs:
             echo "Downloading $qtname.tar.xz..." && wget -q https://download.qt.io/official_releases/qt/$qtvermajor.$qtverminor/$qtver/single/$qtname.tar.xz
             tar xf $qtname.tar.xz && cd $qtname
             mkdir $GITHUB_WORKSPACE/qt5
+            cp -rf "$GITHUB_WORKSPACE/qt5patch/*" "$GITHUB_WORKSPACE/qt5/"
             mkdir build-qt && cd build-qt
-            ../configure -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5 -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -no-warnings-are-errors -opengl desktop
+            gl4es_BINARY_DIR=$GITHUB_WORKSPACE/gl4es/libs/arm64-v8a ../configure -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5 -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -no-warnings-are-errors -opengl desktop
             make -j$(nproc)
             sudo make install
             find $GITHUB_WORKSPACE/qt5 -name "Qt5Core*"
