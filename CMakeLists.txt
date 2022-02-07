@@ -154,7 +154,7 @@ elseif(WIN32)
 	set(CMAKE_INSTALL_PREFIX "D:/tools/${PROJECT_NAME}")
 
 elseif(ANDROID)
-
+	include(FetchContent)
 	FetchContent_Declare(
 	QtAndroidCMake
 	GIT_REPOSITORY https://github.com/LaurentGomila/qt-android-cmake
