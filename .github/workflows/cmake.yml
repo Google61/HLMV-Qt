@@ -34,26 +34,42 @@ jobs:
         cd gl4es
         $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk
 
-    - name: Build Qt5 for Android
+
+    - name: Get Qt5
       run: |
-            qtvermajor=5
-            qtverminor=15
-            qtverpatch=.2
-            qtver=$qtvermajor.$qtverminor$qtverpatch
-            qtname=qt-everywhere-src-$qtver
-            echo "Downloading $qtname.tar.xz..." && wget -q https://download.qt.io/official_releases/qt/$qtvermajor.$qtverminor/$qtver/single/$qtname.tar.xz
-            tar xf $qtname.tar.xz && cd $qtname
-            mkdir $GITHUB_WORKSPACE/qt5
-            cp -rf $GITHUB_WORKSPACE/qt5patch/* $GITHUB_WORKSPACE/qt5/
+            git clone https://code.qt.io/qt/qt5.git
+            cd qt5
+            git checkout v5.13.1
+            git submodule update --init --recursive
+
+    - name: Get Qt5 android patches
+      run: |
+            mkdir qt5aur $$ cd qt5aur
+            git init
+            git remote add -f origin https://github.com/Martchus/PKGBUILDs
+            git config core.sparsecheckout true
+            echo qt5/ >> .git/info/sparse-checkout
+            git pull origin master
+    # todo: multiarch build
+    - name: Patch & build Qt5
+      run: |
+            mkdir qt5out
+            cd qt5/qtbase
+            patch -Np1 -i "../../qt5aur/qt5/android-aarch64/0001-Fix-clang-libc-build-under-Android.patch"
+            patch -Np1 -i "../../qt5aur/qt5/android-aarch64/0003-Support-pkg-config-under-Android.patch"
+            patch -Np1 -i "../../qt5aur/qt5/android-aarch64/0004-Use-pkg-config-to-find-libjpeg.patch"
+            cd ../qtlocation
+            patch -Np1 -i "../../qt5aur/qt5/android-aarch64/0001-Disable-mapboxgl.patch"
+            cd ..
             mkdir build-qt && cd build-qt
-            gl4es_BINARY_DIR=$GITHUB_WORKSPACE/gl4es/libs/arm64-v8a ../configure -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5 -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -no-warnings-are-errors -opengl desktop
+            gl4es_BINARY_DIR=$GITHUB_WORKSPACE/gl4es/libs/arm64-v8a ../configure -confirm_license -opensource -xplatform android-clang -prefix $GITHUB_WORKSPACE/qt5out -disable-rpath -nomake tests -nomake examples -android-ndk $ANDROID_NDK_HOME -android-sdk $ANDROID_SDK_ROOT -android-arch arm64-v8a -android-ndk-platform 28 -no-warnings-are-errors -skip qtserialport -no-warnings-are-errors -optimized-qmake -opengl desktop -I$ANDROID_NDK_HOME/sysroot/usr/include
             make -j$(nproc)
             sudo make install
-            find $GITHUB_WORKSPACE/qt5 -name "Qt5Core*"
+            find $GITHUB_WORKSPACE/qt -name "*.cmake"
             exit 1
-    - name: Show log
+    - name: Show Qt5 log
       if: failure()
-      run: cat qt-everywhere-src-5.15.2/build-qt/config.log
+      run: cat qt5/build-qt/config.log
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
