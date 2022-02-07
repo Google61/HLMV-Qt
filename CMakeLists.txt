@@ -161,7 +161,14 @@ elseif(ANDROID)
 	GIT_TAG        master
 	)
 	FetchContent_MakeAvailable(QtAndroidCMake)
-
+	FetchContent_Declare(
+	gl4es
+	GIT_REPOSITORY https://github.com/ptitSeb/gl4es
+	GIT_TAG        master
+	)
+	FetchContent_Populate(gl4es)
+	include_directories(${gl4es_SOURCE_DIR}/include)
+	add_subdirectory(${gl4es_SOURCE_DIR})
 	add_library(HLMV SHARED ${FILE_SRC_PLATFORM} ${FILE_RES} ${FILE_UI} ${FILE_SRC} ${GEN_MOC} ${GEN_UIC} ${GEN_RCC})
 	target_link_libraries(HLMV ${OPENGL_LIBRARY} Qt5::Core Qt5::Widgets Qt5::OpenGL)
 	add_qt_android_apk(HLMV_apk HLMV
