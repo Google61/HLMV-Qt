@@ -44,7 +44,6 @@ jobs:
 
     - name: Get Qt5 android patches
       run: |
-            rm -R qt5patches
             mkdir qt5patches $$ cd qt5patches
             git init
             git remote add -f origin https://github.com/Martchus/PKGBUILDs
