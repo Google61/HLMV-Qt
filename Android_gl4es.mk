@@ -101,5 +101,4 @@ LOCAL_LDLIBS := -llog
 #building as a static lib
 
 #LOCAL_CFLAGS += -DSTATICLIB
-include $(BUILD_SHARED
-_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
