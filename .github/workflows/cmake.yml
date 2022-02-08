@@ -39,7 +39,7 @@ jobs:
       run: |
             git clone https://code.qt.io/qt/qt5.git
             cd qt5
-            git checkout v5.13.1
+            git checkout v5.15.2
             git submodule update --init --recursive
 
     # todo: multiarch build
